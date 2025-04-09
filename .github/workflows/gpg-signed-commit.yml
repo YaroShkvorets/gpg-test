@@ -1,0 +1,57 @@
+name: GPG Signed Commit
+
+on:
+  workflow_dispatch:
+    # This allows the workflow to be triggered manually
+
+jobs:
+  create-signed-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup GPG
+        id: setup-gpg
+        env:
+          GPG_BOT_PRIVATE_KEY: ${{ secrets.GPG_BOT_PRIVATE_KEY }}
+        run: |
+          # Install GPG
+          sudo apt-get update
+          sudo apt-get install -y gnupg
+
+          # Import the private key from repository secret
+          echo "$GPG_BOT_PRIVATE_KEY" | gpg --batch --import
+
+          # Set the key ID
+          KEY_ID="00E5079A5712B6AB816C7FC298029F48E27EAF23"
+          echo "GPG_KEY_ID=$KEY_ID" >> $GITHUB_ENV
+
+          # Trust the key
+          echo -e "5\ny\n" | gpg --batch --command-fd 0 --expert --edit-key $KEY_ID trust
+
+          # Export public key to file for reference
+          gpg --armor --export $KEY_ID > public-key.gpg
+
+          # Configure git to use the GPG key
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.signingkey $KEY_ID
+          git config --global commit.gpgsign true
+
+      - name: Create random file
+        run: |
+          # Generate a random filename
+          FILENAME="random-file-$(date +%s).txt"
+
+          # Create file with random content
+          echo "This is a randomly generated file created at $(date)" > $FILENAME
+          echo "Random number: $RANDOM" >> $FILENAME
+
+          # Add, commit, and push the file
+          git add $FILENAME
+          git commit -S -m "Add randomly generated file via GitHub Actions"
+          git push
+
+          echo "Created and committed file: $FILENAME"
+
