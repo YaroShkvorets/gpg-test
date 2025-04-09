@@ -24,7 +24,7 @@ jobs:
           echo "$GPG_BOT_PRIVATE_KEY" | gpg --batch --import
 
           # Set the key ID
-          KEY_ID="00E5079A5712B6AB816C7FC298029F48E27EAF23"
+          KEY_ID="8C9C0C3127B2A107808203F67203CB1FFC10B4C1"
           echo "GPG_KEY_ID=$KEY_ID" >> $GITHUB_ENV
 
           # Trust the key
@@ -38,6 +38,7 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.signingkey $KEY_ID
           git config --global commit.gpgsign true
+          git config --global gpg.program $(which gpg)
 
       - name: Create random file
         run: |
@@ -50,8 +51,12 @@ jobs:
 
           # Add, commit, and push the file
           git add $FILENAME
+
+          # Use GPG_TTY workaround for non-interactive signing
+          export GPG_TTY=$(tty)
+          export GNUPGHOME="$HOME/.gnupg"
+
           git commit -S -m "Add randomly generated file via GitHub Actions"
           git push
 
           echo "Created and committed file: $FILENAME"
-
