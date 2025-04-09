@@ -7,6 +7,9 @@ on:
 jobs:
   create-signed-commit:
     runs-on: ubuntu-latest
+    # Add permissions for the GITHUB_TOKEN
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
