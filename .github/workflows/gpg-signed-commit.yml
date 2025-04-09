@@ -13,35 +13,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          # This ensures we get commit history
+          fetch-depth: 0
 
-      - name: Setup GPG
-        id: setup-gpg
-        env:
-          GPG_BOT_PRIVATE_KEY: ${{ secrets.GPG_BOT_PRIVATE_KEY }}
+      - name: Configure Git
         run: |
-          # Install GPG
-          sudo apt-get update
-          sudo apt-get install -y gnupg
-
-          # Import the private key from repository secret
-          echo "$GPG_BOT_PRIVATE_KEY" | gpg --batch --import
-
-          # Set the key ID
-          KEY_ID="8C9C0C3127B2A107808203F67203CB1FFC10B4C1"
-          echo "GPG_KEY_ID=$KEY_ID" >> $GITHUB_ENV
-
-          # Trust the key
-          echo -e "5\ny\n" | gpg --batch --command-fd 0 --expert --edit-key $KEY_ID trust
-
-          # Export public key to file for reference
-          gpg --armor --export $KEY_ID > public-key.gpg
-
-          # Configure git to use the GPG key
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.signingkey $KEY_ID
+          # Enable commit signature verification using GitHub token
           git config --global commit.gpgsign true
-          git config --global gpg.program $(which gpg)
 
       - name: Create random file
         run: |
@@ -52,14 +33,15 @@ jobs:
           echo "This is a randomly generated file created at $(date)" > $FILENAME
           echo "Random number: $RANDOM" >> $FILENAME
 
-          # Add, commit, and push the file
+          # Add and commit the file
           git add $FILENAME
-
-          # Use GPG_TTY workaround for non-interactive signing
-          export GPG_TTY=$(tty)
-          export GNUPGHOME="$HOME/.gnupg"
-
+          
+          # Use special committer identity for GitHub Actions
           git commit -S -m "Add randomly generated file via GitHub Actions"
-          git push
-
+          
+          # Push using the GitHub token for verification
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:${GITHUB_REF#refs/heads/}
+          
           echo "Created and committed file: $FILENAME"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
