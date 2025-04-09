@@ -17,12 +17,12 @@ jobs:
           # This ensures we get commit history
           fetch-depth: 0
 
-      - name: Configure Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          # Enable commit signature verification using GitHub token
-          git config --global commit.gpgsign true
+      # - name: Configure Git
+      #   run: |
+      #     git config --global user.name "github-actions[bot]"
+      #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      #     # Enable commit signature verification using GitHub token
+      #     git config --global commit.gpgsign true
 
       - name: Create random file
         run: |
@@ -33,15 +33,13 @@ jobs:
           echo "This is a randomly generated file created at $(date)" > $FILENAME
           echo "Random number: $RANDOM" >> $FILENAME
 
-          # Add and commit the file
-          git add $FILENAME
-          
           # Use special committer identity for GitHub Actions
-          git commit -S -m "Add randomly generated file via GitHub Actions"
-          
-          # Push using the GitHub token for verification
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:${GITHUB_REF#refs/heads/}
-          
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add $FILENAME
+          git commit -m "Add randomly generated file via GitHub Actions"
+          git push origin HEAD
+
           echo "Created and committed file: $FILENAME"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # env:
+        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
