@@ -13,16 +13,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          # This ensures we get commit history
-          fetch-depth: 0
-
-      # - name: Configure Git
-      #   run: |
-      #     git config --global user.name "github-actions[bot]"
-      #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      #     # Enable commit signature verification using GitHub token
-      #     git config --global commit.gpgsign true
 
       - name: Create random file
         run: |
@@ -33,13 +23,10 @@ jobs:
           echo "This is a randomly generated file created at $(date)" > $FILENAME
           echo "Random number: $RANDOM" >> $FILENAME
 
-          # Use special committer identity for GitHub Actions
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add $FILENAME
-          git commit -m "Add randomly generated file via GitHub Actions"
-          git push origin HEAD
-
-          echo "Created and committed file: $FILENAME"
-        # env:
-        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push with signed commit
+        uses: actions-js/push@v1.4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          author_email: "41898282+github-actions[bot]@users.noreply.github.com"
+          author_name: "github-actions[bot]"
+          message: "Add signed commit from GitHub Actions"
