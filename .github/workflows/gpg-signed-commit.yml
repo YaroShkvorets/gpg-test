@@ -19,6 +19,18 @@ jobs:
           FILENAME="random-file-$(date +%s).txt"
           echo "This is a randomly generated file created at $(date)" > $FILENAME
           echo "Random number: $RANDOM" >> $FILENAME
+
+      - name: Import GPG key and setup git
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global commit.gpgsign true
+          git config --global user.signingkey 336CEE352C31CE1042D7D8B8ABA2CFF52B057F30
+          git config --global gpg.program gpg
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
