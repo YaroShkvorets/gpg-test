@@ -20,24 +20,28 @@ jobs:
           echo "This is a randomly generated file created at $(date)" > $FILENAME
           echo "Random number: $RANDOM" >> $FILENAME
 
-      - name: Import GPG key and setup git
+      - name: Commit and Push Changes
         run: |
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --global commit.gpgsign true
-          git config --global user.signingkey 8FBE20CB917E1472B37F8B99EC86BB0B9753F31A
-          git config --global gpg.program gpg
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-      - name: Push
+          git add .
+          git commit -m "Add random file"
+          git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git add .
-          git commit -m "Add randome file"
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
+
+      # - name: Import GPG key and setup git
+      #   run: |
+      #     echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+      #     git config --global user.name "github-actions[bot]"
+      #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      #     git config --global commit.gpgsign true
+      #     git config --global user.signingkey 336CEE352C31CE1042D7D8B8ABA2CFF52B057F30
+      #     git config --global gpg.program gpg
+      #   env:
+      #     GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+
       # - name: Commit and push changes
       #   uses: stefanzweifel/git-auto-commit-action@v5
       #   with:
