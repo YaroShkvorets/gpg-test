@@ -27,6 +27,6 @@ jobs:
         uses: actions-js/push@v1.4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          author_email: "41898282+github-actions[bot]@users.noreply.github.com"
-          author_name: "github-actions[bot]"
+          # author_email: "41898282+github-actions[bot]@users.noreply.github.com"
+          # author_name: "github-actions[bot]"
           message: "Add signed commit from GitHub Actions"
