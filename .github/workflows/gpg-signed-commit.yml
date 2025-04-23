@@ -13,8 +13,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          persist-credentials: false # This is important if you have branch protection rules!
+        # with:
+        #   persist-credentials: false # This is important if you have branch protection rules!
       - name: Import bot's GPG key for signing commits
         id: import-gpg
         uses: crazy-max/ghaction-import-gpg@v4
